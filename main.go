@@ -20,7 +20,7 @@ func main() {
 	}
 
 	b.Handle("/salut", func(m *tb.Message) {
-		b.Send(m.Chat, "Salut les potes je suis le bot de la conv !")
+		b.Send(m.Chat, "Salut l'élite")
 	})
 
 	b.Start()
