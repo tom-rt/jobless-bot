@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -19,9 +20,26 @@ func main() {
 		return
 	}
 
+	b.Handle(tb.OnText, func(m *tb.Message) {
+		var name = getName(m.Sender)
+		fmt.Println(name + " dit: " + m.Text)
+	})
+
 	b.Handle("/salut", func(m *tb.Message) {
 		b.Send(m.Chat, "Salut l'élite")
 	})
 
 	b.Start()
+}
+
+func getName(sender *tb.User) string {
+	if sender.FirstName == "" {
+		return sender.Username
+	} else if sender.LastName != "" {
+		return sender.FirstName + " " + sender.LastName
+	} else if sender.Username == "" {
+		return sender.FirstName
+	} else {
+		return sender.FirstName + " " + sender.Username
+	}
 }
