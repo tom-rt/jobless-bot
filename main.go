@@ -43,7 +43,7 @@ func main() {
 		b.Send(m.Chat, "Au revoir l'élite")
 	})
 
-	// b.Handle("/statistiques", func(m *tb.Message) {
+	// b.Handle("/stats", func(m *tb.Message) {
 	// 	report := handler.CreateReport(m)
 	// 	b.Send(m.Chat, report)
 	// })
