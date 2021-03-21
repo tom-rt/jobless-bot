@@ -4,5 +4,5 @@ CREATE TABLE chan_user
 (
     id BIGSERIAL PRIMARY KEY,
     name text UNIQUE NOT NULL,
-    sent_messages_count INT DEFAULT 0
+    sent_messages_count INTEGER DEFAULT 1
 );
