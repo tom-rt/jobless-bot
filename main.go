@@ -35,6 +35,14 @@ func main() {
 		b.Send(m.Chat, "Salut l'élite")
 	})
 
+	b.Handle("/bonne_nuit", func(m *tb.Message) {
+		b.Send(m.Chat, "Bonne nuit l'élite")
+	})
+
+	b.Handle("/au_revoir", func(m *tb.Message) {
+		b.Send(m.Chat, "Au revoir l'élite")
+	})
+
 	// b.Handle("/statistiques", func(m *tb.Message) {
 	// 	report := handler.CreateReport(m)
 	// 	b.Send(m.Chat, report)
