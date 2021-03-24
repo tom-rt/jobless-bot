@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	db "github.com/tom-rt/jobless-bot/db"
 )
 
@@ -36,7 +34,6 @@ func CreateUser(name string) error {
 			($1)
 		`,
 		name)
-		fmt.Println(err)
 	return err
 }
 
