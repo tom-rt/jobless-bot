@@ -30,29 +30,25 @@ func main() {
 
 	db.InitDB()
 
-	var report string  = handler.CreateReport()
-	fmt.Println(report)
+	var tmpReport string  = handler.CreateReport()
+	fmt.Println(tmpReport)
 
-	c := cron.New()
-	c.AddFunc("@every 1m", func() {
-		fmt.Println("Every min")
-		var report string  = handler.CreateReport()
-		fmt.Println(report)
-		// b.Send(CONV, "Ioos = beau goos")
+	reprise := cron.New()
+	// Every monday at 7 AM
+	reprise.AddFunc("0 0 7 * * 1", func() {
+		link := handler.SendReprise()
+		b.Send(CONV, link)
 	})
-	c.Start()
+	reprise.Start()
 
-	c2 := cron.New()
-	c2.AddFunc("0 0 0 * * *", func() { fmt.Println("Every min 2") })
-	c2.Start()
-
-	c3 := cron.New()
-	c3.AddFunc("* * * * * *", func() { fmt.Println("Every min 3") })
-	c3.Start()
-
-	// c4 := cron.New()
-	// c4.AddFunc("* * * * *", func() { fmt.Println("Every min 4") })
-	// c4.Start()
+	cronReport := cron.New()
+	// Every day at 10 AM
+	cronReport.AddFunc("0 0 10 * * *", func() {
+		report := handler.CreateReport()
+		fmt.Println(report)
+		// b.Send(CONV, report)
+	})
+	cronReport.Start()
 
 	b.Handle(tb.OnText, func(m *tb.Message) {
 		if CONV == nil {
@@ -74,15 +70,6 @@ func main() {
 	b.Handle("/bonne_nuit", func(m *tb.Message) {
 		b.Send(m.Chat, "Bonne nuit l'élite")
 	})
-
-	b.Handle("/au_revoir", func(m *tb.Message) {
-		b.Send(m.Chat, "Au revoir l'élite")
-	})
-
-	// b.Handle("/stats", func(m *tb.Message) {
-	// 	report := handler.CreateReport(m)
-	// 	b.Send(m.Chat, report)
-	// })
 
 	b.Start()
 }

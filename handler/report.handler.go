@@ -17,3 +17,7 @@ func CreateReport() string {
 	// stringReport := "Félicitations au meilleur chômeur des dernières 24 heures: " + report[0].Name + " !\n"
 	return "stringReport"
 }
+
+func SendReprise() string {
+	return "https://www.youtube.com/watch?v=3L5N4qypyyY"
+}

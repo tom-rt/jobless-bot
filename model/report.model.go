@@ -35,7 +35,7 @@ func GetReport() (Report, error) {
 		FROM chan_user;
 		`)
 
-	if len(spammers) > 0 {
+	if len(spammers) > 1 {
 		reportMessage = "Félicitations aux meilleurs chomeurs des dernières 24 heures:"
 		for i := 0; i < len(spammers); i++ {
 			if i == len(spammers) - 1 {
