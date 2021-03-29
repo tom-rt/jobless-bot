@@ -34,14 +34,15 @@ func CreateReport() string {
 		return "Personne n'a parlé !"
 	}
 
-	fmt.Println(reportMessage)
 
 	reportMessage = reportMessage + "\n\nVoici le classement:\n"
 
 	for i := 0; i < len(report.UsersReports); i++ {
-		reportMessage = reportMessage + "\n - " + report.UsersReports[i].name + ": " + report.UsersReports[i].sentMessagesCount + "."
+		fmt.Println(report.UsersReports[i])
+		reportMessage = reportMessage + "\n - " + report.UsersReports[i].Name + ": " + report.UsersReports[i].SentMessagesCount + "."
 	}
 
+	fmt.Println(reportMessage)
 
 	return "stringReport"
 }
