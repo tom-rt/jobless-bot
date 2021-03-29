@@ -2,19 +2,47 @@ package handlers
 
 import (
 	"fmt"
+	"strconv"
 
 	model "github.com/tom-rt/jobless-bot/model"
 )
 
 // CreateReport returns the stats
 func CreateReport() string {
-	report, err := model.GetReport()
+	report, spammers, maxCount, err := model.GetReport()
+	fmt.Println(len(spammers), spammers)
+
 	if err != nil {
 		fmt.Println("err", err)
 	} else {
 		fmt.Println("report", report)
 	}
-	// stringReport := "Félicitations au meilleur chômeur des dernières 24 heures: " + report[0].Name + " !\n"
+
+	var reportMessage string = "Salut l'élite !\n"
+	if len(spammers) > 1 {
+		reportMessage = reportMessage + "Félicitations aux meilleurs chomeurs des dernières 24 heures:"
+		for i := 0; i < len(spammers); i++ {
+			if i == len(spammers) - 1 {
+				reportMessage = reportMessage + " et " + spammers[i] + " avec un total de " + strconv.Itoa(maxCount) + " messages chacun !"
+			} else {
+				reportMessage = reportMessage +" " + spammers[i] + ","
+			}
+		}
+	} else if len(spammers) == 1 {
+		reportMessage = reportMessage + "Félicitations au meilleur chomeur des dernières 24 heures: " + spammers[0] + " avec un total de " + strconv.Itoa(maxCount) + " messages !"
+	} else {
+		return "Personne n'a parlé !"
+	}
+
+	fmt.Println(reportMessage)
+
+	reportMessage = reportMessage + "\n\nVoici le classement:\n"
+
+	for i := 0; i < len(report.UsersReports); i++ {
+		reportMessage = reportMessage + "\n - " + report.UsersReports[i].name + ": " + report.UsersReports[i].sentMessagesCount + "."
+	}
+
+
 	return "stringReport"
 }
 

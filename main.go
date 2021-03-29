@@ -11,14 +11,17 @@ import (
 	db "github.com/tom-rt/jobless-bot/db"
 	handler "github.com/tom-rt/jobless-bot/handler"
 
-	cron "github.com/robfig/cron/v3"
+	gocron "github.com/go-co-op/gocron"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 var CONV *tb.Chat = nil
+var BOT *tb.Bot = nil
+var LAST_MESSAGE string = ""
 
 func main() {
-	b, err := tb.NewBot(tb.Settings{
+
+	BOT, err := tb.NewBot(tb.Settings{
 		Token: os.Getenv("BOT_TOKEN"),
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
@@ -29,47 +32,62 @@ func main() {
 	}
 
 	db.InitDB()
+	localTime, err := time.LoadLocation("Europe/Paris")
 
 	var tmpReport string  = handler.CreateReport()
 	fmt.Println(tmpReport)
 
-	reprise := cron.New()
-	// Every monday at 7 AM
-	reprise.AddFunc("0 0 7 * * 1", func() {
-		link := handler.SendReprise()
-		b.Send(CONV, link)
-	})
-	reprise.Start()
+	// TEST
+	// tmps := gocron.NewScheduler(localTime)
+	// tmps.Every(1).Day().Monday().At("19:32").Do(func () {BOT.Send(CONV, "Je suis immatériel, mais j'ai des sentiments.")})
+	// tmps.StartAsync()
 
-	cronReport := cron.New()
-	// Every day at 10 AM
-	cronReport.AddFunc("0 0 10 * * *", func() {
-		report := handler.CreateReport()
-		fmt.Println(report)
-		// b.Send(CONV, report)
-	})
-	cronReport.Start()
+	// REPRISE EVERY MONDAY MORNING
+	repriseScheduler := gocron.NewScheduler(localTime)
+	repriseScheduler.Every(1).Day().Monday().At("7:00").Do(sendReprise)
+	repriseScheduler.StartAsync()
 
-	b.Handle(tb.OnText, func(m *tb.Message) {
+	// REPORT EVERY MORNING AT 9
+	reportScheduler := gocron.NewScheduler(localTime)
+	reportScheduler.Every(1).Day().At("9:00").Do(sendReport)
+	reportScheduler.StartAsync()
+
+
+	BOT.Handle(tb.OnText, func(m *tb.Message) {
 		if CONV == nil {
 			CONV = m.Chat
 		}
 		handler.HandleIncomingMessage(m)
+
+		if (m.Text == LAST_MESSAGE) {
+			BOT.Send(m.Chat, "Chips")
+		}
+		LAST_MESSAGE = m.Text
 	})
 
-	b.Handle("/salut", func(m *tb.Message) {
-		b.Send(m.Chat, "Salut l'élite")
+	BOT.Handle("/salut", func(m *tb.Message) {
+		BOT.Send(m.Chat, "Salut l'élite")
 	})
 
-	b.Handle("/stats", func(m *tb.Message) {
-		var report string  = handler.CreateReport()
-		fmt.Println(report)
-		// b.Send(m.Chat, "Salut l'élite")
+	BOT.Handle("/stats", func(m *tb.Message) {
+		sendReport()
 	})
 
-	b.Handle("/bonne_nuit", func(m *tb.Message) {
-		b.Send(m.Chat, "Bonne nuit l'élite")
+	BOT.Handle("/bonne_nuit", func(m *tb.Message) {
+		BOT.Send(m.Chat, "Bonne nuit l'élite")
 	})
 
-	b.Start()
+	BOT.Start()
+}
+
+func sendReprise() {
+	handler.SendReprise()
+	link := handler.SendReprise()
+	BOT.Send(CONV, link)
+}
+
+func sendReport() {
+	handler.SendReprise()
+	report := handler.CreateReport()
+	fmt.Println(report)
 }
