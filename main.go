@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -16,31 +15,18 @@ import (
 )
 
 var CONV *tb.Chat = nil
-var BOT *tb.Bot = nil
+var BOT *tb.Bot
 var LAST_MESSAGE string = ""
 
 func main() {
 
-	BOT, err := tb.NewBot(tb.Settings{
+	BOT, _ = tb.NewBot(tb.Settings{
 		Token: os.Getenv("BOT_TOKEN"),
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
 
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
 	db.InitDB()
-	localTime, err := time.LoadLocation("Europe/Paris")
-
-	var tmpReport string  = handler.CreateReport()
-	fmt.Println(tmpReport)
-
-	// TEST
-	// tmps := gocron.NewScheduler(localTime)
-	// tmps.Every(1).Day().Monday().At("19:32").Do(func () {BOT.Send(CONV, "Je suis immatériel, mais j'ai des sentiments.")})
-	// tmps.StartAsync()
+	localTime, _ := time.LoadLocation("Europe/Paris")
 
 	// REPRISE EVERY MONDAY MORNING
 	repriseScheduler := gocron.NewScheduler(localTime)
@@ -70,7 +56,8 @@ func main() {
 	})
 
 	BOT.Handle("/stats", func(m *tb.Message) {
-		sendReport()
+		report := handler.CreateReport()
+		fmt.Println(report)
 	})
 
 	BOT.Handle("/bonne_nuit", func(m *tb.Message) {
@@ -87,7 +74,7 @@ func sendReprise() {
 }
 
 func sendReport() {
-	handler.SendReprise()
 	report := handler.CreateReport()
-	fmt.Println(report)
+	handler.ResetReport()
+	BOT.Send(CONV, report)
 }

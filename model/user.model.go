@@ -6,10 +6,11 @@ import (
 
 // User model
 type User struct {
-	ID					int		`db:"id" json:"id"`
+	ID					int		`db:"id" json:"id" binding:"required"`
 	Name				string	`db:"name" json:"name" binding:"required"`
-	SentMessagesCount	string	`db:"sent_messages_count" json:"sent_messages_count" binding:"required"`
+	SentMessagesCount	int		`db:"sent_messages_count" json:"sentMessagesCount" binding:"required"`
 }
+//SentMessagesCount	string	`db:"sentMessagesCount" json:"sent_messages_count" binding:"required"`
 
 // GetUserByName func
 func GetUserByName(name string) (User, error) {

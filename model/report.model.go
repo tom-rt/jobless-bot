@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/jmoiron/sqlx/types"
 	db "github.com/tom-rt/jobless-bot/db"
@@ -10,8 +9,8 @@ import (
 
 // Report query model
 type ReportQuery struct {
-	TotalMessageCount	int				`db:"total_message_count" json:"totalMessageCount" binding:"required"`
-	UsersReports		types.JSONText	`db:"users_reports" json:"usersReports" binding:"required"`
+	TotalMessageCount	int				`db:"totalMessageCount" json:"totalMessageCount" binding:"required"`
+	UsersReports		types.JSONText	`db:"usersReports" json:"usersReports" binding:"required"`
 }
 
 // Report query
@@ -35,17 +34,23 @@ func GetReport() (*Report, []string, int, error) {
 	)
 
 	err = db.DB.Get(&query,
-		`SELECT	SUM(sent_messages_count) AS total_message_count,
+		`SELECT	SUM(sent_messages_count) AS "totalMessageCount",
 		(
-			SELECT json_agg(json_build_object('id', id, 'name', name, 'sent_messages_count', sent_messages_count) ORDER BY sent_messages_count DESC) FROM chan_user
-		) AS users_reports
+			SELECT json_agg(json_build_object('id', id, 'name', name, 'sentMessagesCount', sent_messages_count) ORDER BY sent_messages_count DESC) FROM chan_user
+		) AS "usersReports"
 		FROM chan_user;
 	`)
-
-	fmt.Println(query)
 
 	var report *Report = new(Report)
 	report.TotalMessageCount = query.TotalMessageCount
 	json.Unmarshal(query.UsersReports, &report.UsersReports)
+
 	return report, spammers, maxCount, err
+}
+
+func ResetReport() {
+	tx := db.DB.MustBegin()
+	tx.MustExec("DELETE FROM chan_user WHERE sent_messages_count = 0;")
+	tx.MustExec("UPDATE chan_user SET sent_messages_count = 0;")
+	tx.Commit()
 }
